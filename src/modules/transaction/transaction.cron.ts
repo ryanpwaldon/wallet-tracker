@@ -1,27 +1,27 @@
 import { Timeout } from '@nestjs/schedule'
 import { Injectable } from '@nestjs/common'
 import { OpenseaService } from 'src/modules/opensea/opensea.service'
-import { CollectorService } from 'src/modules/collector/collector.service'
+import { AddressService } from 'src/modules/address/address.service'
 
 @Injectable()
 export class TransactionCron {
-  constructor(private readonly collectorService: CollectorService, private readonly openseaService: OpenseaService) {}
+  constructor(private readonly addressService: AddressService, private readonly openseaService: OpenseaService) {}
 
   @Timeout(0)
   async findNewSales() {
-    const collectors = await this.collectorService.findAll()
+    const addresses = await this.addressService.findAll()
     const fetchEventRequests = []
     const udpateCollectorRequests = []
-    for (const collector of collectors) {
-      console.log(`Collector: ${collector.fields.twitterHandle}`)
+    for (const address of addresses) {
+      console.log(`Collector: ${address.fields.twitterHandle}`)
       const now = new Date().toISOString()
       fetchEventRequests.push(
         this.openseaService.findAllSaleEvents({
-          address: <string>collector.fields.address,
-          occurredAfter: <string>collector.fields.lastCheckedAt || now,
+          address: <string>address.fields.address,
+          occurredAfter: <string>address.fields.lastCheckedAt || now,
         }),
       )
-      udpateCollectorRequests.push(collector.updateFields({ lastCheckedAt: now }))
+      udpateCollectorRequests.push(address.updateFields({ lastCheckedAt: now }))
     }
     const events = await Promise.all(fetchEventRequests)
     console.log(events)
