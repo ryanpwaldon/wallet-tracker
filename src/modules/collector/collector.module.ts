@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common'
-import { AddressService } from './address.service'
+import { CollectorService } from './collector.service'
 import { AirtableModule } from 'src/modules/airtable/airtable.module'
 
 @Module({
   imports: [AirtableModule],
-  providers: [AddressService],
-  exports: [AddressService],
+  providers: [CollectorService],
+  exports: [CollectorService],
 })
-export class AddressModule {}
+export class CollectorModule {}

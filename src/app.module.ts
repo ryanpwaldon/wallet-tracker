@@ -6,6 +6,7 @@ import { SlackModule } from './modules/slack/slack.module'
 import { AddressModule } from './modules/address/address.module'
 import { OpenseaModule } from './modules/opensea/opensea.module'
 import { AirtableModule } from './modules/airtable/airtable.module'
+import { CollectorModule } from './modules/collector/collector.module'
 import { TransactionModule } from './modules/transaction/transaction.module'
 
 @Module({
@@ -14,6 +15,7 @@ import { TransactionModule } from './modules/transaction/transaction.module'
     AddressModule,
     OpenseaModule,
     AirtableModule,
+    CollectorModule,
     TransactionModule,
     ScheduleModule.forRoot(),
     MongooseModule.forRootAsync({ useFactory: () => ({ uri: process.env.MONGO_URI }) }),

@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common'
+import { AxiosResponse } from '@nestjs/common/node_modules/axios'
 import axios, { AxiosInstance } from 'axios'
 import axiosRateLimit from 'axios-rate-limit'
+import { OpenseaQueryEventsResponse } from 'src/types/OpenseaQueryEventsResponse'
 
 @Injectable()
 export class OpenseaService {
@@ -16,7 +18,7 @@ export class OpenseaService {
     const limit = 20
     const allResults = []
     while (hasMore) {
-      const response = await this.client({
+      const response = (await this.client({
         method: 'get',
         url: '/events',
         params: {
@@ -27,7 +29,7 @@ export class OpenseaService {
           account_address: address,
           occurred_after: occurredAfter,
         },
-      })
+      })) as AxiosResponse<OpenseaQueryEventsResponse>
       const results = response.data.asset_events
       allResults.push(...results)
       const resultsCount = results.length

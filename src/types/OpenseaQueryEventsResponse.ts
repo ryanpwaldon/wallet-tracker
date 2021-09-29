@@ -14,7 +14,7 @@ export interface AssetEvent {
   ending_price: null
   from_account: null
   owner_account: null
-  total_price: string
+  total_price: number
   starting_price: null
   approved_account: null
   collection_slug: string
