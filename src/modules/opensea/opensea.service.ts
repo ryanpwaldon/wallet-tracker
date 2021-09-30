@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { AxiosResponse } from '@nestjs/common/node_modules/axios'
 import axios, { AxiosInstance } from 'axios'
 import axiosRateLimit from 'axios-rate-limit'
-import { OpenseaQueryEventsResponse } from 'src/types/OpenseaQueryEventsResponse'
+import { AssetEvent, OpenseaQueryEventsResponse } from 'src/types/OpenseaQueryEventsResponse'
 
 @Injectable()
 export class OpenseaService {
@@ -12,12 +12,28 @@ export class OpenseaService {
     this.client = axiosRateLimit(axios.create({ baseURL: 'https://api.opensea.io/api/v1' }), { maxRPS: 5 })
   }
 
-  async findAllSaleEvents({ address, occurredAfter }: { address: string; occurredAfter: string }) {
+  async findRecentSaleEvent(address: string): Promise<AssetEvent | undefined> {
+    const response = (await this.client({
+      method: 'get',
+      url: '/events',
+      params: {
+        limit: 1,
+        only_opensea: false,
+        event_type: 'successful',
+        account_address: address,
+      },
+    })) as AxiosResponse<OpenseaQueryEventsResponse>
+    const [event] = response.data.asset_events
+    return event
+  }
+
+  // find sale events that occurred after a particular eventId
+  async findNewSaleEvents({ address, stopAtEvent }: { address: string; stopAtEvent?: string }) {
     let offset = 0
-    let hasMore = true
+    let complete = false
     const limit = 20
-    const allResults = []
-    while (hasMore) {
+    const newEvents = []
+    while (!complete) {
       const response = (await this.client({
         method: 'get',
         url: '/events',
@@ -27,15 +43,20 @@ export class OpenseaService {
           only_opensea: false,
           event_type: 'successful',
           account_address: address,
-          occurred_after: occurredAfter,
         },
       })) as AxiosResponse<OpenseaQueryEventsResponse>
-      const results = response.data.asset_events
-      allResults.push(...results)
-      const resultsCount = results.length
-      if (resultsCount < limit) hasMore = false
-      offset += resultsCount
+      const events = response.data.asset_events
+      const stopAtEventIndex = events.findIndex((event) => event.id.toString() === stopAtEvent)
+      if (stopAtEventIndex >= 0) {
+        newEvents.push(...events.slice(0, stopAtEventIndex))
+        complete = true
+      } else {
+        newEvents.push(...events)
+        const eventCount = events.length
+        if (eventCount < limit) complete = true
+        offset += eventCount
+      }
     }
-    return allResults
+    return newEvents
   }
 }

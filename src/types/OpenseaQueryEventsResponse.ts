@@ -4,12 +4,12 @@ export interface OpenseaQueryEventsResponse {
 
 export interface AssetEvent {
   id: number
-  asset: Asset
+  asset: Asset | null
   duration: null
   bid_amount: null
   quantity: string
   to_account: null
-  asset_bundle: null
+  asset_bundle: AssetBundle | null
   created_date: Date
   ending_price: null
   from_account: null
@@ -135,7 +135,7 @@ export interface DevFeePaymentEvent {
   asset: null
   quantity: null
   total_price: null
-  asset_bundle: null
+  asset_bundle: AssetBundle | null
   event_type: string
   auction_type: null
   created_date: Date
@@ -164,4 +164,16 @@ export interface Transaction {
   block_number: null | string
   to_account: UserAccount | null
   from_account: UserAccount | null
+}
+
+export interface AssetBundle {
+  maker: any
+  slug: string
+  assets: Asset[]
+  name: string
+  description: string
+  external_link: string
+  asset_contract: any
+  permalink: string
+  sell_orders: any
 }

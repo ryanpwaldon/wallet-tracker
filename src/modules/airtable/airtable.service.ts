@@ -10,8 +10,10 @@ export class AirtableService {
     this.base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(process.env.AIRTABLE_BASE_ID as string)
   }
 
-  findAll(table: string) {
-    return this.base(table).select({}).all()
+  findAll(table: string, filter?: string) {
+    return this.base(table)
+      .select({ filterByFormula: filter || '' })
+      .all()
   }
 
   async updateMany(table: string, records: RecordData<Partial<FieldSet>>[]) {

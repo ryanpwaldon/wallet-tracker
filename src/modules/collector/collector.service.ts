@@ -6,7 +6,7 @@ import { AirtableService } from 'src/modules/airtable/airtable.service'
 export class CollectorService {
   constructor(private readonly airtableService: AirtableService) {}
 
-  async findAll() {
-    return this.airtableService.findAll(COLLECTORS_TABLE_NAME)
+  async findAll(filter?: string) {
+    return this.airtableService.findAll(COLLECTORS_TABLE_NAME, filter)
   }
 }
