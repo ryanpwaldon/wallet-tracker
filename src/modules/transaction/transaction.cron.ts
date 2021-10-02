@@ -112,6 +112,7 @@ export class TransactionCron {
 
   sendTxnNotification(text: string, image: string) {
     this.slackService.send({
+      text,
       blocks: [
         {
           type: 'section',
