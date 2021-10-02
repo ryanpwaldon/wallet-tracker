@@ -33,7 +33,7 @@ export class TransactionCron {
       const eventGroup = eventsGroupedByAddress[i]
       const collector = collectors.find((collector) => (collector.fields.addresses as string[]).includes(address.id))
       for (let i = 0; i < eventGroup.length; i++) {
-        const event = eventGroup[0]
+        const event = eventGroup[i]
         if (i === 0) lastEventCheckedByAddress[address.id] = event.id.toString()
         const txnType = event.seller?.address === address.fields.address ? 'sell' : 'buy'
         const txnIsBundle = !!event.asset_bundle
