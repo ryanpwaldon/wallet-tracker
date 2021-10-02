@@ -58,19 +58,20 @@ export class TransactionCron {
           const txnIsBundle = !!event.asset_bundle
           const txnPrice = event.total_price / Math.pow(10, event.payment_token.decimals)
           const txnCurrency = event.payment_token.symbol
-          const assetName = event.asset?.name
+          const assetName = event.asset?.name || `#${event.asset?.token_id}`
           const assetLink = event.asset?.permalink
-          const assetImage = event.asset?.image_url
+          const assetImage = event.asset?.image_preview_url
+          const collectionLink = `https://opensea.io/collection/${event.asset?.collection.slug}`
           const collectionName = event.asset?.collection.name
           const bundleName = event.asset_bundle?.name
           const bundleLink = event.asset_bundle?.permalink
-          const message = txnIsBundle
-            ? `${collector?.fields.twitterHandle} ${
-                txnType === 'buy' ? 'bought' : 'sold'
-              } ${bundleName} for ${txnPrice}${txnCurrency}.\n${bundleLink}`
-            : `${collector?.fields.twitterHandle} ${txnType === 'buy' ? 'bought' : 'sold'} ${assetName} for ${txnPrice}${txnCurrency}.\n${assetLink}`
-          this.slackService.send(message)
-          console.log(message)
+          const bundleImage = event.asset_bundle?.assets[0].image_preview_url
+          // prettier-ignore
+          const messageText = txnIsBundle
+            ? `<${collector?.fields.twitterUrl}|@${collector?.fields.twitterHandle}> ${txnType === 'buy' ? 'bought' : 'sold'} bundle <${bundleLink}|${bundleName}> for ${txnPrice}${txnCurrency}.\nUser links: <${address.fields.openseaUrl}|Collection> · <${address.fields.openseaSales}|Activity>`
+            : `<${collector?.fields.twitterUrl}|@${collector?.fields.twitterHandle}> ${txnType === 'buy' ? 'bought' : 'sold'} <${collectionLink}|${collectionName}>, <${assetLink}|${assetName}> for ${txnPrice}${txnCurrency}.\nUser links: <${address.fields.openseaUrl}|Collection> · <${address.fields.openseaSales}|Activity>`
+          const messageImage = (txnIsBundle ? bundleImage : assetImage) as string
+          this.sendTxnNotification(messageText, messageImage)
         }
       }
     } catch (err) {
@@ -107,5 +108,24 @@ export class TransactionCron {
     }
     logSuccess('Job updateNewAddresses.')
     retry()
+  }
+
+  sendTxnNotification(text: string, image: string) {
+    this.slackService.send({
+      blocks: [
+        {
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: text,
+          },
+          accessory: {
+            type: 'image',
+            image_url: image,
+            alt_text: 'Asset',
+          },
+        },
+      ],
+    })
   }
 }

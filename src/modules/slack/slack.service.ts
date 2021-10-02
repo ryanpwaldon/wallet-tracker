@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { IncomingWebhook } from '@slack/webhook'
+import { IncomingWebhook, IncomingWebhookSendArguments } from '@slack/webhook'
 
 @Injectable()
 export class SlackService {
@@ -10,7 +10,11 @@ export class SlackService {
     this.client = new IncomingWebhook(<string>this.configService.get('SLACK_WEBHOOK_URL'))
   }
 
-  send(text: string) {
+  send(data: IncomingWebhookSendArguments) {
+    this.client.send(data)
+  }
+
+  sendText(text: string) {
     this.client.send({ text })
   }
 }
