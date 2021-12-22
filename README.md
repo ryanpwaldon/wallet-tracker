@@ -1,3 +1,3 @@
-# Simple NFT Sale Tracker
+# Wallet Tracker
 
-Track NFT sales of notable buyers / sellers (fetched from airtable), and send notifications via Slack.
+Tracks NFT sales of notable wallets. Uses Airtable as DB (for easy editing), and sends notifications via Slack.
